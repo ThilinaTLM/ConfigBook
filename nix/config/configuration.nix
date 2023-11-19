@@ -155,9 +155,11 @@
       gcm = "git commit -m ";
       gaa = "git add .";
       gss = "git status";
+      gc  = "git branch | fzf | xargs git checkout";
+      gnn = "git branch | fzf | xargs git branch -D";
 
       # programs
-      vim = "nvim";
+      vim = "nvim";s
     };
     interactiveShellInit = ''
       # z plugin for jumps around
