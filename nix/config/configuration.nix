@@ -9,7 +9,7 @@
   # Add unstable branch
   nixpkgs.overlays = [
     (self: super: {
-        unstable = import <nixos-unstable> {
+      unstable = import <nixos-unstable> {
         config = config.nixpkgs.config;
       };
     })
@@ -40,14 +40,14 @@
     driSupport32Bit = true;
     extraPackages = with pkgs; [
       intel-media-driver # LIBVA_DRIVER_NAME=iHD
-      vaapiIntel         # LIBVA_DRIVER_NAME=i965 (older but works better for Firefox/Chromium)
+      vaapiIntel # LIBVA_DRIVER_NAME=i965 (older but works better for Firefox/Chromium)
       vaapiVdpau
       libvdpau-va-gl
     ];
   };
 
   # Load nvidia driver for Xorg and Wayland
-  services.xserver.videoDrivers = ["nvidia"];
+  services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia = {
     modesetting.enable = true;
     powerManagement.enable = true;
@@ -139,6 +139,9 @@
     };
   };
 
+  # Neovim
+  programs.neovim.defaultEditor = true;
+
   # Shell configuration, ZSH
   programs.zsh = {
     enable = true;
@@ -155,15 +158,57 @@
       gcm = "git commit -m ";
       gaa = "git add .";
       gss = "git status";
-      gc  = "git branch | fzf | xargs git checkout";
-      gnn = "git branch | fzf | xargs git branch -D";
+      gc = "git_checkout ";
+      gnn = "git_new_branch ";
 
       # programs
-      vim = "nvim";s
+      vim = "nvim";
     };
     interactiveShellInit = ''
       # z plugin for jumps around
       source ${pkgs.fetchurl {url = "https://github.com/rupa/z/raw/2ebe419ae18316c5597dd5fb84b5d8595ff1dde9/z.sh"; sha256 = "0ywpgk3ksjq7g30bqbhl9znz3jh6jfg8lxnbdbaiipzgsy41vi10";}}
+
+      # create a new git branch
+      function git_new_branch() {
+        from_branch="$(git branch | fzf)"
+      }
+
+      # git choose branch
+      function git_checkout() {
+        branch_name=$(echo $1 | tr -d ' ')
+        branches=$(git branch | tr -d ' \t*')
+
+        if [[ ! -z "$branch_name" ]]; then  # Check if branch_name is not empty
+          if echo "$branches" | grep -Fxq "$branch_name"; then
+              # If the branch exists, checkout directly
+              git checkout "$branch_name"
+          else
+              # If the branch does not exist, use fzf with branch_name as initial query
+              git branch | tr -d ' \t*' | fzf --query="$branch_name " | xargs git checkout
+          fi
+        else
+            # If branch_name is empty, use fzf without initial query
+            git branch | tr -d ' \t*' | fzf | xargs git checkout
+        fi
+      }
+
+      # git new branch
+      function git_new_branch() {
+        branch_name=$(echo $1 | tr -d ' ')
+        if [ -z "$branch_name" ]; then
+          echo "Branch name is required"
+          echo "Usage: git_new_branch <branch_name>"
+          return
+        fi
+
+        from_branch="$(git branch | tr -d ' \t*' | fzf)"
+        if [ -z "$from_branch" ]; then
+          echo "Canceled"
+          return
+        fi
+
+        git checkout -b $branch_name $from_branch
+      }
 
       # prompt init
       eval "$(starship init zsh)"
@@ -185,29 +230,30 @@
 
       # Browsers
       firefox
-      brave 
+      brave
       google-chrome
 
       # Editors & IDEs
-      kate 
+      kate
       unstable.vscode-fhs
       unstable.jetbrains-toolbox
-      
+
       # Dev Tools
       unstable.dbeaver
       postman
       unstable.ollama
 
       # Other
-      stremio 
-      mpv 
+      stremio
+      mpv
       obs-studio
-      zoom-us 
+      zoom-us
       slack
       discord
 
       # CLI tools
-      bat exa
+      bat
+      exa
       fzf
       megacmd
     ];
@@ -234,13 +280,22 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     os-prober
-    vim neovim
-    wget curl aria2
-    gitFull gh
-    lshw pciutils fwupd
-    gnupg pinentry-gtk2
-    docker docker-compose
-    python312 nodejs_18 
+    vim
+    neovim
+    wget
+    curl
+    aria2
+    gitFull
+    gh
+    lshw
+    pciutils
+    fwupd
+    gnupg
+    pinentry-gtk2
+    docker
+    docker-compose
+    python312
+    nodejs_18
     jdk17
   ];
 

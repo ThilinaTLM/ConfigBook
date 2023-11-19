@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Automatically determine the path of the script and thus the repo
 SCRIPT_DIR=$(dirname "$0")
@@ -8,7 +8,7 @@ NIXOS_CONFIG_PATH="/etc/nixos"
 # Function to backup current system configuration
 backup_config() {
     echo "Backing up current system configuration..."
-    cp -r "$NIXOS_CONFIG_PATH" "${NIXOS_CONFIG_PATH}/backup_$(date +%Y%m%d%H%M%S)"
+    sudo cp -r "$NIXOS_CONFIG_PATH" "${NIXOS_CONFIG_PATH}/backup_$(date +%Y%m%d%H%M%S)"
 }
 
 # Function to sync from repo to system
