@@ -140,7 +140,30 @@
   };
 
   # Neovim
-  programs.neovim.defaultEditor = true;
+  programs.neovim = {
+    enable = true;
+    defaultEditor = true;
+    vimAlias = true;
+    withNodeJs = true;
+    withPython3 = true;
+    configure = {
+      customRC = ''
+        set tabstop=2
+        set shiftwidth=2
+        set expandtab
+        set autoindent
+        set smartindent
+        set smarttab
+        set number
+        set relativenumber
+        set showmatch
+        set incsearch
+        set hlsearch
+        set ignorecase
+        set smartcase
+      '';
+    };
+  };
 
   # Shell configuration, ZSH
   programs.zsh = {
@@ -153,6 +176,10 @@
       configure = "sudo nvim /etc/nixos/configuration.nix";
       update = "sudo nix-channel --update";
       rebuild = "sudo nixos-rebuild switch";
+
+      # system
+      cat = "bat";
+      ls = "exa --icons";
 
       # git 
       gcm = "git commit -m ";
@@ -241,7 +268,6 @@
       # Dev Tools
       unstable.dbeaver
       postman
-      unstable.ollama
 
       # Other
       stremio
@@ -280,8 +306,6 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     os-prober
-    vim
-    neovim
     wget
     curl
     aria2
