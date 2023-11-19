@@ -8,14 +8,14 @@ NIXOS_CONFIG_PATH="/etc/nixos"
 # Function to backup current system configuration
 backup_config() {
     echo "Backing up current system configuration..."
-    sudo cp -r "$NIXOS_CONFIG_PATH" "${NIXOS_CONFIG_PATH}/backup_$(date +%Y%m%d%H%M%S)"
+    sudo cp -r "$NIXOS_CONFIG_PATH" "${NIXOS_CONFIG_PATH}_backup_$(date +%Y%m%d%H%M%S)"
 }
 
 # Function to sync from repo to system
 sync_from_repo() {
     backup_config
     echo "Syncing from repo to system..."
-    sudo cp -r "$REPO_CONFIG_PATH/"* "$NIXOS_CONFIG_PATH"
+    sudo cp "$REPO_CONFIG_PATH/"* "$NIXOS_CONFIG_PATH"
     sudo rm "$NIXOS_CONFIG_PATH"/sync.sh
 }
 
